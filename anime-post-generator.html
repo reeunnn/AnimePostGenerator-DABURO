@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mori Post Generator v9 — Daburo Subs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,600;1,7..72,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   GENERATOR UI VARIABLES
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1612;--bg2:#211d18;--bg3:#272118;
+  --ink:#e8ddd0;--ink2:#b8a898;--ink3:#7a6e62;--ink4:#4a4038;
+  --line:#302820;--line2:#251f18;
+  --cy:#e8a050;--cy2:#c07830;--cy3:#a06020;
+  --glow:rgba(232,160,80,.18);
+  --amber:#d4956a;
+  --mono:'JetBrains Mono',monospace;
+  --r:3px;
+}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:14px;overflow:hidden;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
+a{text-decoration:none;color:inherit}
+
+/* ── SHELL: 55 / 45 split ── */
+#app{display:grid;grid-template-columns:55fr 45fr;height:100vh;overflow:hidden}
+
+/* ── PANEL HEADER ── */
+.panel-hdr{
+  display:flex;align-items:center;gap:9px;padding:11px 16px;
+  background:var(--bg2);border-bottom:1px solid var(--line);
+  font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);
+  flex-shrink:0;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--cy);box-shadow:0 0 7px rgba(232,160,80,.4);flex-shrink:0}
+.panel-hdr-title{color:var(--cy);letter-spacing:.14em;font-size:10px;font-family:'Literata',serif;font-style:italic;font-size:13px;letter-spacing:.03em;text-transform:none;}
+
+/* ── JIKAN BAR ── */
+.jikan-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 16px;
+  background:rgba(232,160,80,.03);border-bottom:1px solid rgba(232,160,80,.12);
+  flex-shrink:0;
+}
+.jikan-label{font-size:10px;color:var(--cy3);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.jikan-bar input{
+  flex:1;background:var(--bg3);border:1px solid var(--line);border-radius:var(--r);
+  color:var(--ink);font-family:var(--mono);font-size:13px;
+  padding:6px 10px;outline:none;transition:border-color .15s;
+}
+.jikan-bar input:focus{border-color:var(--cy)}
+.jikan-btn{
+  background:var(--cy3);color:var(--ink);border:none;border-radius:var(--r);
+  padding:7px 16px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  cursor:pointer;transition:opacity .15s;text-transform:uppercase;white-space:nowrap;font-weight:500;
+}
+.jikan-btn:hover{opacity:.8}
+.jikan-spin{
+  display:none;width:12px;height:12px;border:2px solid rgba(232,160,80,.3);
+  border-top-color:var(--cy);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── LEFT PANEL ── */
+#form-panel{display:flex;flex-direction:column;overflow:hidden;height:100vh;border-right:1px solid var(--line)}
+.form-body{overflow-y:auto;padding:16px;flex:1;display:flex;flex-direction:column;gap:14px}
+.form-body::-webkit-scrollbar{width:4px}
+.form-body::-webkit-scrollbar-thumb{background:var(--line)}
+
+.f-section{display:flex;flex-direction:column;gap:8px}
+.f-label{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--cy3);
+  display:flex;align-items:center;gap:8px;
+}
+.f-label::after{content:'';flex:1;height:1px;background:var(--line)}
+
+.f-row{display:grid;gap:8px}
+.c2{grid-template-columns:1fr 1fr}
+.c3{grid-template-columns:1fr 1fr 1fr}
+.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+
+.f-group{display:flex;flex-direction:column;gap:4px}
+.f-group label{font-size:10px;color:var(--ink4);letter-spacing:.06em;text-transform:uppercase}
+.f-group input,
+.f-group select,
+.f-group textarea{
+  background:var(--bg3);border:1px solid var(--line);border-radius:var(--r);
+  color:var(--ink);font-family:var(--mono);font-size:13px;
+  padding:7px 10px;outline:none;transition:border-color .15s;width:100%;
+}
+.f-group input:focus,
+.f-group select:focus,
+.f-group textarea:focus{border-color:var(--cy)}
+.f-group select option{background:var(--bg3)}
+.f-group textarea{resize:none;line-height:1.6}
+
+.f-section-grow{display:flex;flex-direction:column;gap:8px;flex:1;min-height:0}
+.f-section-grow .f-group{flex:1;display:flex;flex-direction:column}
+.f-section-grow textarea{flex:1;min-height:80px}
+
+.dyn-row{display:grid;gap:6px;margin-bottom:6px;align-items:center}
+.dyn-row.svr{grid-template-columns:1fr 1fr auto;align-items:end}
+
+.dl-list-item{
+  display:grid;grid-template-columns:70px 90px 85px 75px 1fr auto;
+  gap:5px;margin-bottom:5px;align-items:center;
+  background:rgba(232,160,80,.03);border:1px solid var(--line);
+  border-radius:var(--r);padding:6px 8px;
+}
+.dl-list-item input,
+.dl-list-item select{
+  background:var(--bg);border:1px solid var(--line2);border-radius:3px;
+  color:var(--ink);font-family:var(--mono);font-size:11px;
+  padding:5px 7px;outline:none;transition:border-color .15s;width:100%;
+}
+.dl-list-item input:focus,
+.dl-list-item select:focus{border-color:var(--cy)}
+.dl-list-item select option{background:var(--bg3)}
+
+.dl-add-form{
+  background:rgba(232,160,80,.02);border:1px solid var(--line);
+  border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;
+}
+.dl-add-form .f-row{grid-template-columns:70px 90px 75px 1fr}
+.dl-add-form input,
+.dl-add-form select{
+  background:var(--bg3);border:1px solid var(--line);border-radius:3px;
+  color:var(--ink);font-family:var(--mono);font-size:12px;
+  padding:6px 8px;outline:none;transition:border-color .15s;width:100%;
+}
+.dl-add-form input:focus,
+.dl-add-form select:focus{border-color:var(--cy)}
+.dl-add-form select option{background:var(--bg3)}
+.dl-add-form label{font-size:9px;color:var(--ink4);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;display:block}
+
+.add-btn{
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--line);border-radius:var(--r);color:var(--ink4);
+  padding:6px 12px;cursor:pointer;transition:all .15s;text-align:center;width:100%;
+}
+.add-btn:hover{border-color:var(--cy);color:var(--cy)}
+
+.rm-btn{
+  background:transparent;border:1px solid var(--line);border-radius:var(--r);
+  color:var(--ink4);cursor:pointer;font-size:12px;padding:4px 7px;
+  transition:all .15s;font-family:var(--mono);line-height:1;flex-shrink:0;
+}
+.rm-btn:hover{border-color:#c06060;color:#c06060}
+
+.form-footer{
+  padding:11px 16px;background:var(--bg2);border-top:1px solid var(--line);
+  display:flex;gap:10px;flex-shrink:0;
+}
+.btn-main{
+  flex:1;background:var(--cy);color:#1a1612;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:var(--r);
+  padding:10px;cursor:pointer;transition:opacity .15s;font-weight:600;
+}
+.btn-main:hover{opacity:.85}
+.btn-sec{
+  background:transparent;border:1px solid var(--line);border-radius:var(--r);
+  color:var(--ink3);font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  padding:10px 14px;cursor:pointer;transition:all .15s;
+}
+.btn-sec:hover{border-color:var(--cy2);color:var(--cy2)}
+
+/* ── RIGHT PANEL ── */
+#preview-panel{display:flex;flex-direction:column;overflow:hidden;height:100vh}
+.preview-tabs{
+  display:flex;gap:6px;padding:8px 14px;
+  border-bottom:1px solid var(--line);background:var(--bg2);flex-shrink:0;
+}
+.ptab{
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:5px 13px;border-radius:var(--r);
+  border:1px solid var(--line);color:var(--ink4);cursor:pointer;transition:all .15s;
+}
+.ptab.active{border-color:var(--cy);color:var(--cy);background:rgba(232,160,80,.06)}
+.preview-body{flex:1;overflow-y:auto;padding:14px}
+.preview-body::-webkit-scrollbar{width:4px}
+.preview-body::-webkit-scrollbar-thumb{background:var(--line)}
+
+/* ═══════════════════════════════════════════
+   MORI-INFO-CARD — EXACT MATCH DARI XML THEME
+   (CSS diambil langsung dari b:skin XML)
+═══════════════════════════════════════════ */
+
+/* CSS variables — Dark Cozy theme (Daburo Subs) */
+.pv-theme-wrap {
+  --bg-sub:#141210;
+  --bg-hover:#1c1814;
+  --ink:#e8ddd0;
+  --ink-2:#b8a898;
+  --ink-3:#8a7a6a;
+  --ink-4:#5a4e42;
+  --line:#302820;
+  --line-2:#251f18;
+  --cy-cyan:#e8a050;
+  --cy-magenta:#c07830;
+  --cy-purple:#d4884a;
+  --cy-blue:#f0b870;
+  --cy-glow-c:rgba(232,160,80,.3);
+  --font-mono:'JetBrains Mono','Share Tech Mono',monospace;
+}
+
+/* mori-info-card — dari XML b:skin */
+.pv-theme-wrap .mori-info-card{
+  position:relative;width:100%;min-height:220px;overflow:hidden;border-radius:0;
+  margin-bottom:16px;font-family:var(--font-mono);background:#0e0b08;
+  border:1px solid rgba(232,160,80,.18);
+  box-shadow:0 0 12px rgba(232,160,80,.06),inset 0 0 30px rgba(232,160,80,.02);
+}
+.pv-theme-wrap .mori-info-bg{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  width:100%;height:100%;object-fit:cover;object-position:center top;
+  display:block;filter:saturate(.7) brightness(.6);z-index:0;
+}
+.pv-theme-wrap .mori-info-bg-placeholder{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,#1a1208 0%,#201508 50%,#0e0b06 100%);
+  z-index:0;
+}
+.pv-theme-wrap .mori-info-overlay{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(to top,rgba(10,7,3,.97) 0%,rgba(10,7,3,.82) 30%,rgba(10,7,3,.55) 55%,rgba(10,7,3,.25) 75%,rgba(10,7,3,.05) 100%),
+    linear-gradient(90deg,rgba(10,7,3,.92) 0%,rgba(10,7,3,.7) 25%,rgba(10,7,3,.3) 55%,rgba(10,7,3,.0) 100%);
+}
+.pv-theme-wrap .mori-info-scan{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);
+}
+.pv-theme-wrap .mori-info-corner{
+  position:absolute;top:0;right:0;z-index:6;width:0;height:0;
+  border-style:solid;border-width:0 16px 16px 0;
+  border-color:transparent rgba(232,160,80,.35) transparent transparent;
+  pointer-events:none;
+}
+.pv-theme-wrap .mori-info-content{
+  position:relative;z-index:3;display:flex;align-items:stretch;
+  justify-content:space-between;width:100%;min-height:220px;
+}
+.pv-theme-wrap .mori-info-left{
+  flex:1;min-width:0;padding:16px 18px;
+  display:flex;flex-direction:column;justify-content:center;gap:6px;
+}
+.pv-theme-wrap .mori-info-right-col{
+  width:150px;flex-shrink:0;padding:14px 16px 14px 14px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  align-items:flex-end;gap:8px;border-left:none;
+  position:relative;z-index:4;background:transparent;
+}
+.pv-theme-wrap .mori-info-jp-title{
+  font-family:var(--font-mono);font-size:9px;
+  color:rgba(255,255,255,.35);letter-spacing:.04em;
+  margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.pv-theme-wrap .mori-info-tag{
+  font-size:8px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(232,160,80,.6);display:flex;align-items:center;gap:5px;
+}
+.pv-theme-wrap .mori-info-tag::before{content:'//';color:#c07830;opacity:.5;}
+.pv-theme-wrap .mori-info-breadcrumb{
+  font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,.3);
+  letter-spacing:.05em;text-transform:uppercase;
+  display:flex;align-items:center;gap:4px;flex-wrap:wrap;
+}
+.pv-theme-wrap .mori-info-breadcrumb a{color:rgba(255,255,255,.3);transition:color .12s;text-decoration:none;}
+.pv-theme-wrap .mori-info-breadcrumb a:hover{color:rgba(232,160,80,.8);}
+.pv-theme-wrap .mori-info-sep{color:rgba(255,255,255,.2);}
+.pv-theme-wrap .mori-info-title{
+  font-size:17px;font-weight:700;color:#e8ddd0;
+  line-height:1.25;letter-spacing:-.02em;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.pv-theme-wrap .mori-info-badges{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.pv-theme-wrap .ap-label{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 9px;border-radius:4px;
+  border-color:rgba(232,160,80,.3);color:#e8a050;background:rgba(232,160,80,.06);
+  border:1px solid rgba(232,160,80,.3);
+}
+.pv-theme-wrap .mori-badge-sub{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 8px;border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.5);background:rgba(255,255,255,.05);
+}
+.pv-theme-wrap .mori-badge{
+  font-family:var(--font-mono);font-size:8px;font-weight:600;
+  padding:2px 7px;border-radius:3px;letter-spacing:.07em;text-transform:uppercase;
+}
+.pv-theme-wrap .mori-badge-ongoing{background:#7c3d00;color:#fed7aa;}
+.pv-theme-wrap .mori-badge-selesai{background:#2a1f0f;color:#d4a86a;}
+.pv-theme-wrap .mori-badge-movie{background:#1f1508;color:#f0c878;}
+.pv-theme-wrap .mori-badge-ova{background:#7c2d12;color:#fed7aa;}
+.pv-theme-wrap .mori-badge-ona{background:#3a2010;color:#d4a86a;}
+.pv-theme-wrap .mori-badge-special{background:#1f2020;color:#c8c8c8;}
+.pv-theme-wrap .mori-info-meta{display:flex;gap:14px;flex-wrap:wrap;}
+.pv-theme-wrap .mori-info-meta-item{display:flex;flex-direction:column;gap:1px;}
+.pv-theme-wrap .mori-info-meta-key{font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,160,80,.38);}
+.pv-theme-wrap .mori-info-meta-val{font-size:11px;color:rgba(232,221,208,.65);}
+/* Right col blocks */
+.pv-theme-wrap .mori-info-ep-block{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.pv-theme-wrap .mori-info-ep-lbl{font-size:7px;letter-spacing:.15em;text-transform:uppercase;color:rgba(232,160,80,.38);}
+.pv-theme-wrap .mori-info-ep-num{
+  font-size:22px;font-weight:700;color:#e8a050;line-height:1;
+  text-shadow:0 0 10px rgba(232,160,80,.55);
+}
+.pv-theme-wrap .mori-info-ep-title-text{
+  font-size:9px;color:rgba(255,255,255,.5);text-align:right;line-height:1.45;
+  border-right:2px solid rgba(232,160,80,.32);padding-right:6px;
+  white-space:normal;word-break:break-word;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;max-width:114px;
+}
+.pv-theme-wrap .mori-info-mal-block{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+.pv-theme-wrap .mori-info-mal-lbl{font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,160,80,.38);}
+.pv-theme-wrap .mori-info-mal-num{font-size:26px;font-weight:700;color:#e8a050;line-height:1;}
+.pv-theme-wrap .mori-info-mal-sub{font-size:8px;color:rgba(255,255,255,.3);letter-spacing:.06em;}
+
+/* ── aic-wrap — dari XML theme (anime info card) ── */
+.pv-theme-wrap .aic-wrap{
+  border:1px solid rgba(232,160,80,.18);border-radius:0;overflow:hidden;
+  background:rgba(14,10,6,.9);margin-bottom:18px;position:relative;
+}
+.pv-theme-wrap .aic-wrap::before{
+  content:'';position:absolute;top:0;right:0;width:0;height:0;
+  border-style:solid;border-width:0 14px 14px 0;
+  border-color:transparent rgba(232,160,80,.28) transparent transparent;z-index:1;
+}
+.pv-theme-wrap .aic-wrap::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:0;
+  border-style:solid;border-width:0 0 10px 10px;
+  border-color:transparent transparent rgba(232,160,80,.12) transparent;pointer-events:none;
+}
+.pv-theme-wrap .aic-header{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:7px 14px;border-bottom:1px solid rgba(232,160,80,.1);
+  background:rgba(232,160,80,.03);flex-wrap:wrap;
+}
+.pv-theme-wrap .aic-label{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;
+  color:#e8a050;opacity:.6;display:flex;align-items:center;gap:6px;
+}
+.pv-theme-wrap .aic-label::before{content:'//';color:#c07830;opacity:.7;}
+.pv-theme-wrap .aic-mal-link{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;
+  color:#f0b870;text-decoration:none;display:inline-flex;align-items:center;gap:4px;
+  border:1px solid rgba(232,160,80,.2);padding:2px 8px;
+  transition:opacity .15s,border-color .15s;white-space:nowrap;
+}
+.pv-theme-wrap .aic-body{display:flex;flex-direction:column;}
+.pv-theme-wrap .aic-poster{
+  width:100%;height:200px;background:#120e08;overflow:hidden;
+  border-bottom:1px solid rgba(232,160,80,.1);flex-shrink:0;position:relative;
+}
+.pv-theme-wrap .aic-poster::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.08) 3px,rgba(0,0,0,.08) 4px);
+  pointer-events:none;
+}
+.pv-theme-wrap .aic-poster img{
+  width:100%;height:100%;object-fit:contain;object-position:center top;
+  display:block;filter:saturate(.85);
+}
+.pv-theme-wrap .aic-np{
+  width:100%;height:100%;min-height:180px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;font-size:28px;
+  color:rgba(232,160,80,.1);
+}
+.pv-theme-wrap .aic-np span{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,160,80,.18);}
+.pv-theme-wrap .aic-info{
+  flex:1;min-width:0;padding:14px 16px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.pv-theme-wrap .aic-title-jp{font-family:var(--font-mono);font-size:8px;letter-spacing:.06em;color:#6a5a48;margin-bottom:2px;overflow-wrap:break-word;word-break:break-word;}
+.pv-theme-wrap .aic-title-en{font-family:var(--font-mono);font-size:14px;font-weight:700;letter-spacing:-.01em;color:#e8ddd0;line-height:1.25;}
+.pv-theme-wrap .aic-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.pv-theme-wrap .aic-chip{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 8px;border:1px solid rgba(232,160,80,.25);
+  color:#e8a050;background:rgba(232,160,80,.05);
+}
+.pv-theme-wrap .aic-chip.status-ongoing{border-color:rgba(232,140,60,.35);color:#e88c3c;background:rgba(232,140,60,.05);}
+.pv-theme-wrap .aic-chip.status-finished{border-color:#3a2e22;color:#6a5a48;background:transparent;}
+.pv-theme-wrap .aic-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+.pv-theme-wrap .aic-meta-table{width:100%;border-collapse:collapse;}
+.pv-theme-wrap .aic-meta-table tr{border-bottom:1px solid #251f18;}
+.pv-theme-wrap .aic-meta-table tr:last-child{border-bottom:none;}
+.pv-theme-wrap .aic-meta-table td{padding:4px 0;font-size:11.5px;color:#b8a898;vertical-align:top;line-height:1.55;overflow-wrap:break-word;word-break:break-word;}
+.pv-theme-wrap td.aic-key{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(232,160,80,.45);width:72px;min-width:72px;max-width:72px;padding-right:8px;white-space:nowrap;
+}
+.pv-theme-wrap .aic-footer{
+  padding:7px 14px;border-top:1px solid rgba(232,160,80,.08);
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(232,160,80,.02);flex-wrap:wrap;gap:6px;
+}
+.pv-theme-wrap .aic-footer-label{font-family:var(--font-mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#6a5a48;}
+@media(min-width:480px){
+  .pv-theme-wrap .aic-body{flex-direction:row;}
+  .pv-theme-wrap .aic-poster{width:140px;height:auto;min-height:200px;border-bottom:none;border-right:1px solid rgba(232,160,80,.1);}
+}
+
+/* ── sec-div ── */
+.pv-theme-wrap .sec-div{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.2em;text-transform:uppercase;
+  color:#e8a050;margin:22px 0 12px;display:flex;align-items:center;gap:10px;
+}
+.pv-theme-wrap .sec-div::before{content:'//';color:#c07830;opacity:.7;font-size:9px;}
+.pv-theme-wrap .sec-div::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(232,160,80,.25),transparent);}
+
+/* ── genre-tag ── */
+.pv-theme-wrap .genre-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.pv-theme-wrap .genre-tag{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 10px;border:1px solid rgba(232,160,80,.2);
+  color:#d4956a;background:rgba(232,160,80,.04);transition:border-color .15s,background .15s,color .15s;
+}
+.pv-theme-wrap .genre-tag::before{content:'#';color:#c07830;opacity:.6;margin-right:2px;}
+.pv-theme-wrap .genre-tag:hover{border-color:#e8a050;background:rgba(232,160,80,.08);color:#e8a050;}
+
+/* ── synopsis ── */
+.pv-theme-wrap .pw-syn{font-size:13px;line-height:1.9;color:#b8a898;margin-bottom:20px;}
+
+/* ── stream-wrap ── */
+.pv-theme-wrap .stream-wrap{
+  background:#0a0804;border:1px solid rgba(232,160,80,.2);border-radius:0;
+  overflow:hidden;margin-bottom:18px;position:relative;
+  box-shadow:0 0 5px rgba(232,160,80,.1);
+}
+.pv-theme-wrap .stream-wrap::before{
+  content:'// STREAM';position:absolute;top:0;left:0;z-index:3;
+  font-family:var(--font-mono);font-size:7px;letter-spacing:.18em;color:#e8a050;
+  background:rgba(0,0,0,.85);padding:3px 10px;
+  border-right:1px solid rgba(232,160,80,.2);border-bottom:1px solid rgba(232,160,80,.2);
+}
+.pv-theme-wrap .stream-thumb{
+  aspect-ratio:16/9;background:#0a0804;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;background-size:contain;background-position:center top;background-repeat:no-repeat;
+}
+.pv-theme-wrap .stream-thumb-bg{position:absolute;inset:0;background:linear-gradient(160deg,#100c06,#1a1208);}
+.pv-theme-wrap .stream-thumb-cover{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;object-position:center top;display:block;
+  background:#0a0804;z-index:0;
+}
+.pv-theme-wrap .stream-thumb-dim{
+  position:absolute;inset:0;background:rgba(0,0,0,.35);z-index:2;pointer-events:none;
+}
+.pv-theme-wrap .play-btn{
+  position:relative;z-index:4;width:44px;height:44px;border-radius:50%;
+  background:#e8a050;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 16px rgba(232,160,80,.35);pointer-events:none;flex-shrink:0;
+}
+.pv-theme-wrap .play-btn svg{width:17px;height:17px;fill:#0e0b08;margin-left:3px;}
+.pv-theme-wrap .stream-watermark{
+  position:absolute;top:8px;right:10px;z-index:5;
+  font-family:var(--font-mono);font-size:13px;letter-spacing:.1em;
+  color:rgba(255,255,255,.55);text-shadow:0 1px 5px rgba(0,0,0,.85);
+  pointer-events:none;user-select:none;
+}
+
+/* ── server-tabs ── */
+.pv-theme-wrap .server-tabs{
+  display:flex;gap:6px;padding:8px 10px;
+  border-top:1px solid rgba(232,160,80,.08);margin-bottom:0;
+}
+.pv-theme-wrap .server-tab{
+  font-size:11px;padding:5px 12px;background:rgba(20,14,8,.8);
+  border:1px solid rgba(232,160,80,.13);color:#7a6a58;
+  border-radius:0;transition:all .12s;font-family:var(--font-mono);cursor:pointer;
+}
+.pv-theme-wrap .server-tab:hover{border-color:rgba(232,160,80,.3);color:#e8a050;}
+.pv-theme-wrap .server-tab.active{background:rgba(232,160,80,.07);border-color:#e8a050;color:#e8a050;}
+
+/* ── dlu-wrap (download) ── */
+.pv-theme-wrap .dlu-wrap{margin-bottom:20px;}
+.pv-theme-wrap .dlu-header{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:#e8a050;margin-bottom:6px;display:flex;align-items:center;gap:10px;
+}
+.pv-theme-wrap .dlu-header::after{content:'';flex:1;height:1px;background:#302018;}
+.pv-theme-wrap .dlu-list{border:1px solid #302018;overflow:hidden;}
+.pv-theme-wrap .dlu-item{
+  display:flex;align-items:center;gap:0;padding:10px 0;border-bottom:1px solid #201808;
+  text-decoration:none;color:inherit;transition:background .12s;cursor:pointer;
+}
+.pv-theme-wrap .dlu-item:last-child{border-bottom:none;}
+.pv-theme-wrap .dlu-item:hover{background:rgba(232,160,80,.04);}
+.pv-theme-wrap .dlu-srv{
+  flex:0 0 110px;font-size:13px;color:#e8a050;font-family:var(--font-mono);
+  border-left:2px solid #e8a050;padding-left:12px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.pv-theme-wrap .dlu-res{
+  flex-shrink:0;font-family:var(--font-mono);font-size:11px;padding:2px 9px;
+  border:1px solid #302018;color:#7a6a58;margin-right:10px;
+}
+.pv-theme-wrap .dlu-res.res-720{border-color:#e8a050;color:#e8a050;}
+.pv-theme-wrap .dlu-res.res-1080{border-color:#e8c547;color:#e8c547;}
+.pv-theme-wrap .dlu-res.res-480{border-color:#c07830;color:#c07830;}
+.pv-theme-wrap .dlu-meta{flex:1;font-size:12px;color:#6a5a48;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pv-theme-wrap .dlu-btn{
+  flex-shrink:0;margin-left:auto;margin-right:12px;
+  font-family:var(--font-mono);font-size:11px;padding:5px 14px;
+  border:1px solid #302018;color:#7a6a58;display:inline-flex;align-items:center;gap:5px;
+  transition:border-color .12s,color .12s;
+}
+.pv-theme-wrap .dlu-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.pv-theme-wrap .dlu-item:hover .dlu-btn{border-color:#e8a050;color:#e8a050;}
+.pv-theme-wrap .dlu-item:hover .dlu-srv{color:#e8a050;}
+
+/* ── res-group download layout (layout baru bergaya tabel) ── */
+.pv-theme-wrap .dl-rg-wrap{margin-bottom:22px;}
+.pv-theme-wrap .dl-rg-header{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:#e8a050;margin-bottom:10px;display:flex;align-items:center;gap:10px;opacity:.85;
+}
+.pv-theme-wrap .dl-rg-header::before{content:'//';color:#c07830;opacity:.7;}
+.pv-theme-wrap .dl-rg-header::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(232,160,80,.3),transparent);}
+.pv-theme-wrap .dl-res-group{
+  display:grid;grid-template-columns:44px 1fr;gap:0;
+  border:1px solid rgba(232,160,80,.14);border-radius:8px;overflow:hidden;
+  margin-bottom:10px;background:rgba(18,14,8,.8);
+}
+.pv-theme-wrap .dl-res-label{
+  background:rgba(232,160,80,.06);border-right:1px solid rgba(232,160,80,.14);
+  display:flex;align-items:center;justify-content:center;
+  writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);
+  font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.08em;
+  padding:10px 0;flex-shrink:0;
+}
+.pv-theme-wrap .dl-res-label.lbl-1080{color:#c8aa50;}
+.pv-theme-wrap .dl-res-label.lbl-720{color:#e8a050;}
+.pv-theme-wrap .dl-res-label.lbl-480{color:#7a6a58;}
+.pv-theme-wrap .dl-res-label.lbl-4k{color:#f0b870;}
+.pv-theme-wrap .dl-res-rows{flex:1;display:flex;flex-direction:column;}
+.pv-theme-wrap .dl-tbl-head{
+  display:grid;grid-template-columns:1fr 80px 80px 1fr;
+  padding:5px 12px;border-bottom:1px solid rgba(232,160,80,.1);
+  background:rgba(232,160,80,.025);
+}
+.pv-theme-wrap .dl-tbl-head span{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#4a3e30;
+}
+.pv-theme-wrap .dl-tbl-head span:last-child{text-align:right;}
+.pv-theme-wrap .dl-tbl-row{
+  display:grid;grid-template-columns:1fr 80px 80px 1fr;
+  padding:9px 12px;border-bottom:1px solid rgba(232,160,80,.06);
+  align-items:center;text-decoration:none;color:inherit;transition:background .12s;
+}
+.pv-theme-wrap .dl-tbl-row:last-child{border-bottom:none;}
+.pv-theme-wrap .dl-tbl-row:hover{background:rgba(232,160,80,.05);}
+.pv-theme-wrap .dl-tbl-srv{
+  font-family:var(--font-mono);font-size:12px;color:#e8a050;font-weight:600;
+  letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px;
+  transition:color .12s;
+}
+.pv-theme-wrap .dl-tbl-row:hover .dl-tbl-srv{color:#f0b870;}
+.pv-theme-wrap .dl-qual-badge{
+  display:inline-flex;align-items:center;font-family:var(--font-mono);
+  font-size:9px;letter-spacing:.05em;padding:2px 7px;border-radius:4px;
+  border:1px solid rgba(232,160,80,.2);color:#7a6a58;background:rgba(232,160,80,.03);width:fit-content;
+}
+.pv-theme-wrap .dl-enc-badge{
+  display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);
+  font-size:9px;letter-spacing:.04em;padding:2px 7px;border-radius:4px;
+  border:1px solid rgba(232,160,80,.15);color:#6a5a48;background:transparent;width:fit-content;
+}
+.pv-theme-wrap .dl-enc-badge::before{content:'⬡';font-size:7px;opacity:.5;color:#e8a050;}
+.pv-theme-wrap .dl-tbl-link{display:flex;justify-content:flex-end;}
+.pv-theme-wrap .dl-tbl-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--font-mono);font-size:9px;padding:5px 12px;letter-spacing:.04em;
+  background:rgba(18,14,8,.9);border:1px solid rgba(232,160,80,.18);border-radius:6px;
+  color:#6a5a48;cursor:pointer;transition:all .15s;text-decoration:none;
+}
+.pv-theme-wrap .dl-tbl-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;}
+.pv-theme-wrap .dl-tbl-row:hover .dl-tbl-btn{border-color:#e8a050;color:#e8a050;background:rgba(232,160,80,.07);}
+
+/* code view */
+#code-out{
+  background:var(--bg3);border:1px solid var(--line);border-radius:var(--r);
+  font-size:11px;line-height:1.65;color:var(--ink2);padding:14px;
+  overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+  font-family:var(--mono);min-height:240px;
+}
+.copy-banner{
+  display:none;background:rgba(232,160,80,.08);border:1px solid rgba(232,160,80,.28);
+  border-radius:var(--r);padding:6px 10px;font-size:10px;color:var(--cy);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;text-align:center;
+}
+.sync-indicator{
+  background:rgba(232,160,80,.05);border:1px solid rgba(232,160,80,.18);
+  border-radius:var(--r);padding:5px 10px;font-size:9px;color:var(--cy);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;
+  display:flex;align-items:center;gap:7px;
+}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(232,160,80,.35)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(232,160,80,0)}}
+
+#toast{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+  background:rgba(30,24,18,.97);border:1px solid rgba(232,160,80,.3);
+  border-radius:var(--r);padding:8px 20px;font-size:11px;color:var(--cy);
+  letter-spacing:.08em;text-transform:uppercase;display:none;z-index:999;white-space:nowrap;
+}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ LEFT — FORM ══ -->
+<div id="form-panel">
+  <div class="panel-hdr">
+    <span class="dot"></span>
+    <span class="panel-hdr-title">Mori</span>
+    &nbsp;·&nbsp; Anime Post Generator v9 &nbsp;·&nbsp; Daburo Subs
+  </div>
+
+  <div class="jikan-bar">
+    <span class="jikan-label">MAL ID</span>
+    <input type="number" id="mal-q"
+      placeholder="Masukkan MAL ID anime… (contoh: 58426 = Solo Leveling S2)"
+      onkeydown="if(event.key==='Enter')jikanSearch()">
+    <button class="jikan-btn" onclick="jikanSearch()">FETCH MAL</button>
+    <div class="jikan-spin" id="jspin"></div>
+  </div>
+  <div class="jikan-bar" style="border-top:none;padding-top:0">
+    <span class="jikan-label" style="color:var(--amber,#d4956a)">AL ID</span>
+    <input type="number" id="al-q"
+      placeholder="AniList ID anime… (contoh: 153406 = Chainsaw Man S2)"
+      onkeydown="if(event.key==='Enter')anilistSearch()">
+    <button class="jikan-btn" style="border-color:rgba(212,149,106,.35);color:#d4956a;background:rgba(212,149,106,.08)" onclick="anilistSearch()">FETCH AL</button>
+    <div class="jikan-spin" id="alspin"></div>
+  </div>
+
+  <div class="form-body">
+    <!-- ANIME INFO -->
+    <div class="f-section">
+      <div class="f-label">Anime Info</div>
+      <div class="f-row c2">
+        <div class="f-group">
+          <label>Judul Anime (EN)</label>
+          <input id="f-title" oninput="liveUpdate()" placeholder="Solo Leveling Season 2">
+        </div>
+        <div class="f-group">
+          <label>Judul Jepang</label>
+          <input id="f-title-jp" oninput="liveUpdate()" placeholder="俺だけレベルアップな件 Season 2">
+        </div>
+      </div>
+      <div class="f-row c2">
+        <div class="f-group">
+          <label>Episode ke-</label>
+          <input id="f-ep" type="number" oninput="liveUpdate()" placeholder="09">
+        </div>
+        <div class="f-group">
+          <label>Judul Episode</label>
+          <input id="f-ep-title" oninput="liveUpdate()" placeholder="The Demon Castle">
+        </div>
+      </div>
+      <div class="f-row c4">
+        <div class="f-group">
+          <label>Tipe</label>
+          <select id="f-type" onchange="liveUpdate()">
+            <option value="TV">TV</option>
+            <option value="Movie">Movie</option>
+            <option value="OVA">OVA</option>
+            <option value="ONA">ONA</option>
+            <option value="Special">Special</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Total Ep</label>
+          <input id="f-total-ep" type="number" oninput="liveUpdate()" placeholder="12">
+        </div>
+        <div class="f-group">
+          <label>Durasi (mnt)</label>
+          <input id="f-duration" type="number" oninput="liveUpdate()" placeholder="24">
+        </div>
+        <div class="f-group">
+          <label>Tahun</label>
+          <input id="f-year" type="number" oninput="liveUpdate()" placeholder="2025">
+        </div>
+      </div>
+      <div class="f-row c3">
+        <div class="f-group">
+          <label>Studio</label>
+          <input id="f-studio" oninput="liveUpdate()" placeholder="A-1 Pictures">
+        </div>
+        <div class="f-group">
+          <label>Status</label>
+          <select id="f-status" onchange="liveUpdate()">
+            <option value="ongoing">Ongoing</option>
+            <option value="selesai">Selesai</option>
+            <option value="movie">Movie</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Rating (PG/R/dll)</label>
+          <input id="f-rating" oninput="liveUpdate()" placeholder="PG-13">
+        </div>
+      </div>
+      <div class="f-row c2">
+        <div class="f-group">
+          <label>Genre (pisah koma)</label>
+          <input id="f-genre" oninput="liveUpdate()" placeholder="Action, Fantasy, Adventure">
+        </div>
+        <div class="f-group">
+          <label>MAL Score</label>
+          <input id="f-score" type="number" step="0.1" oninput="liveUpdate()" placeholder="8.7">
+        </div>
+      </div>
+      <div class="f-group">
+        <label>Cover URL (opsional — diisi otomatis via Fetch)</label>
+        <input id="f-cover" oninput="liveUpdate()"
+          placeholder="https://cdn.myanimelist.net/images/anime/…">
+      </div>
+    </div>
+
+    <!-- SERVER STREAMING -->
+    <div class="f-section">
+      <div class="f-label">Server Streaming</div>
+      <div id="svr-list"></div>
+      <button class="add-btn" onclick="addServer()">+ Tambah Server</button>
+    </div>
+
+    <!-- LINK DOWNLOAD -->
+    <div class="f-section">
+      <div class="f-label">Link Download</div>
+      <div id="dl-list"></div>
+      <div class="dl-add-form">
+        <div class="f-row" style="grid-template-columns:80px 90px 90px 90px 1fr">
+          <div>
+            <label>Resolusi</label>
+            <select id="dl-new-res">
+              <option value="">—</option>
+              <option value="480p">480p</option>
+              <option value="720p">720p</option>
+              <option value="1080p">1080p</option>
+              <option value="4K">4K</option>
+            </select>
+          </div>
+          <div>
+            <label>Server</label>
+            <input id="dl-new-server" list="dl-server-options" placeholder="Ketik atau pilih…" autocomplete="off">
+            <datalist id="dl-server-options">
+              <option value="Acefile">
+              <option value="Safefileku">
+              <option value="GoFile">
+              <option value="Pixeldrain">
+            </datalist>
+          </div>
+          <div>
+            <label>Kualitas</label>
+            <input id="dl-new-qual" list="dl-qual-options" placeholder="Ketik atau pilih…" autocomplete="off">
+            <datalist id="dl-qual-options">
+              <option value="BDRip">
+              <option value="DVDRip">
+              <option value="WEB-DL">
+              <option value="HDTV">
+            </datalist>
+          </div>
+          <div>
+            <label>Encode</label>
+            <select id="dl-new-encode">
+              <option value="">—</option>
+              <option value="x264">x264</option>
+              <option value="x265">x265</option>
+              <option value="x265 10bit">x265 10bit</option>
+              <option value="AV1">AV1</option>
+              <option value="HEVC">HEVC</option>
+            </select>
+          </div>
+          <div>
+            <label>URL Lengkap</label>
+            <input id="dl-new-url" placeholder="https://drive.google.com/…"
+              onkeydown="if(event.key==='Enter')addDl()">
+          </div>
+        </div>
+        <button class="add-btn" onclick="addDl()">+ Tambah Link Download</button>
+      </div>
+    </div>
+
+    <!-- SINOPSIS -->
+    <div class="f-section f-section-grow">
+      <div class="f-label">Sinopsis</div>
+      <div class="f-group">
+        <textarea id="f-synopsis" oninput="liveUpdate()"
+          placeholder="Sung Jin-Woo kini menghadapi ancaman baru...&#10;&#10;(Diisi otomatis via MAL ID Fetch — bisa diedit manual)"></textarea>
+      </div>
+    </div>
+  </div><!-- /form-body -->
+
+  <div class="form-footer">
+    <button class="btn-sec" onclick="resetForm()">RESET</button>
+    <button class="btn-main" onclick="generateCode()">▶ GENERATE HTML</button>
+  </div>
+</div>
+
+<!-- ══ RIGHT — PREVIEW ══ -->
+<div id="preview-panel">
+  <div class="panel-hdr">
+    <span class="dot"></span>
+    <span id="pv-hdr-title">Preview</span>
+  </div>
+
+  <div class="preview-tabs">
+    <div class="ptab active" onclick="switchTab('live',this)">Live Preview</div>
+    <div class="ptab" onclick="switchTab('code',this)">HTML Output</div>
+  </div>
+
+  <div class="preview-body">
+    <!-- LIVE -->
+    <div id="tab-live">
+      <!-- ══ mori-info-card persis seperti XML theme ══ -->
+      <div class="pv-theme-wrap">
+
+        <!-- mori-info-card — EXACT CSS dari XML theme b:skin -->
+        <div class="mori-info-card" id="pv-mic">
+          <!-- Background image -->
+          <div class="mori-info-bg-placeholder" id="pv-bg-placeholder"></div>
+          <img class="mori-info-bg" id="pv-bg-img" src="" alt="" style="display:none">
+          <!-- Overlays -->
+          <div class="mori-info-overlay"></div>
+          <div class="mori-info-scan"></div>
+          <div class="mori-info-corner"></div>
+          <!-- Content -->
+          <div class="mori-info-content">
+            <!-- Left -->
+            <div class="mori-info-left">
+              <div class="mori-info-tag">Anime Info</div>
+              <nav class="mori-info-breadcrumb">
+                <a href="#">Beranda</a>
+                <span class="mori-info-sep">/</span>
+                <span id="pv-breadcrumb-label">ONGOING</span>
+                <span class="mori-info-sep">/</span>
+              </nav>
+              <div class="mori-info-jp-title" id="pv-jp-title" style="display:none"></div>
+              <div class="mori-info-title" id="pv-title">Judul Anime</div>
+              <div class="mori-info-badges" id="pv-badges">
+                <span class="ap-label">ONGOING</span>
+                <span class="mori-badge-sub">Sub Indo</span>
+              </div>
+              <div class="mori-info-meta" id="pv-meta"></div>
+            </div>
+            <!-- Right col -->
+            <div class="mori-info-right-col">
+              <div class="mori-info-ep-block" id="pv-ep-block">
+                <span class="mori-info-ep-lbl">Episode</span>
+                <span class="mori-info-ep-num" id="pv-ep-num">—</span>
+                <span class="mori-info-ep-title-text" id="pv-ep-title-text">—</span>
+              </div>
+              <div class="mori-info-mal-block">
+                <span class="mori-info-mal-lbl">MAL Score</span>
+                <span class="mori-info-mal-num" id="pv-score">—</span>
+                <span class="mori-info-mal-sub">/ 10</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Genre tags -->
+        <div class="genre-wrap" id="pv-genres"></div>
+
+        <!-- Synopsis -->
+        <div class="pw-syn" id="pv-synopsis" style="display:none"></div>
+
+        <!-- stream-wrap -->
+        <div class="stream-wrap">
+          <div class="stream-thumb">
+            <div class="stream-thumb-bg" id="pv-player-bg"></div>
+            <img class="stream-thumb-cover" id="pv-player-cover" src="" alt="" style="display:none">
+            <div class="stream-thumb-dim" id="pv-player-dim" style="display:none"></div>
+            <div class="play-btn">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="stream-watermark">daburostream</div>
+          </div>
+          <div class="server-tabs" id="pv-stabs">
+            <button class="server-tab active">▶ Server 1</button>
+          </div>
+        </div>
+
+        <!-- Download section -->
+        <div id="pv-dl"></div>
+
+      </div><!-- /pv-theme-wrap -->
+    </div><!-- /tab-live -->
+
+    <!-- CODE -->
+    <div id="tab-code" style="display:none">
+      <div class="sync-indicator">
+        <span class="sync-dot"></span>
+        <span>Auto-sync aktif — paste HTML untuk preview otomatis</span>
+      </div>
+      <div class="copy-banner" id="copy-banner">✓ HTML tersalin ke clipboard!</div>
+      <div style="display:flex;gap:7px;margin-bottom:9px">
+        <button class="add-btn" style="flex:1" onclick="copyCode()">[ COPY HTML ]</button>
+      </div>
+      <textarea id="code-out"
+        oninput="syncFromOutput(this.value)"
+        onpaste="setTimeout(()=>syncFromOutput(this.value),0)"
+        placeholder="// Isi form, lalu klik ▶ GENERATE HTML&#10;// Atau paste HTML yang sudah ada untuk auto-sync ke form"
+        style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--r);font-size:11px;line-height:1.65;color:var(--ink2);padding:14px;width:100%;min-height:400px;font-family:var(--mono);resize:vertical;outline:none;"></textarea>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /app -->
+<div id="toast"></div>
+
+<script>
+var servers = [];
+var dlLinks = [];
+var _malId  = '';
+var SERVER_PRESETS = ['Acefile','Safefileku','GoFile'];
+var QUAL_PRESETS   = ['BDRip','DVDRip','WEB-DL','HDTV'];
+
+/* ── tab switch ── */
+function switchTab(t, el) {
+  document.querySelectorAll('.ptab').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-live').style.display = t === 'live' ? '' : 'none';
+  document.getElementById('tab-code').style.display = t === 'code' ? '' : 'none';
+}
+
+/* ── default server & download link template (dipakai saat ID MAL/AniList berhasil di-fetch) ── */
+function applyDefaultServersAndDl() {
+  servers = [
+    { label: '720p', name: 'MixDrop', url: '' },
+    { label: '720p', name: 'Acefile', url: '' },
+    { label: '720p', name: 'Abyss',   url: '' }
+  ];
+  dlLinks = [
+    { res: '1080p', server: 'Acefile',    qual: 'BDRip', encode: 'x265', url: '#' },
+    { res: '1080p', server: 'Safefileku', qual: 'BDRip', encode: 'x265', url: '#' },
+    { res: '1080p', server: 'PixelDrain', qual: 'BDRip', encode: 'x265', url: '#' },
+    { res: '720p',  server: 'Acefile',    qual: 'BDRip', encode: 'x265', url: '#' },
+    { res: '720p',  server: 'Safefileku', qual: 'BDRip', encode: 'x265', url: '#' },
+    { res: '720p',  server: 'PixelDrain', qual: 'BDRip', encode: 'x265', url: '#' }
+  ];
+  renderServers();
+  renderDl();
+}
+
+/* ── servers ── */
+function addServer() {
+  servers.push({ label: '', name: '', url: '' });
+  renderServers(); liveUpdate();
+}
+function renderServers() {
+  var c = document.getElementById('svr-list');
+  c.innerHTML = '';
+  servers.forEach(function(s, i) {
+    var d = document.createElement('div');
+    d.className = 'dyn-row svr';
+    d.style.gridTemplateColumns = '110px 1fr 1fr auto';
+    d.innerHTML =
+      '<div class="f-group"><label>Label Tab</label>'
+      + '<input placeholder="Server '+(i+1)+'" value="' + esc(s.label||'') + '" oninput="servers['+i+'].label=this.value;liveUpdate()"></div>'
+      + '<div class="f-group"><label>Nama Server</label>'
+      + '<input placeholder="Acefile" value="' + esc(s.name) + '" oninput="servers['+i+'].name=this.value;liveUpdate()"></div>'
+      + '<div class="f-group"><label>Embed URL</label>'
+      + '<input placeholder="https://…" value="' + esc(s.url) + '" oninput="servers['+i+'].url=this.value;liveUpdate()"></div>'
+      + '<button class="rm-btn" onclick="servers.splice('+i+',1);renderServers();liveUpdate()" style="margin-top:18px">✕</button>';
+    c.appendChild(d);
+  });
+}
+
+/* ── download links ── */
+function addDl() {
+  var res    = document.getElementById('dl-new-res').value.trim();
+  var server = document.getElementById('dl-new-server').value.trim();
+  var qual   = document.getElementById('dl-new-qual').value.trim();
+  var encode = document.getElementById('dl-new-encode').value.trim();
+  var url    = document.getElementById('dl-new-url').value.trim();
+  if (!server && !url) return;
+  dlLinks.push({ res: res||'', server: server||'—', qual: qual||'', encode: encode||'', url: url||'#' });
+  document.getElementById('dl-new-res').selectedIndex = 0;
+  document.getElementById('dl-new-encode').selectedIndex = 0;
+  document.getElementById('dl-new-server').value = '';
+  document.getElementById('dl-new-qual').value = '';
+  document.getElementById('dl-new-url').value = '';
+  renderDl(); liveUpdate();
+}
+function renderDl() {
+  var c = document.getElementById('dl-list');
+  c.innerHTML = '';
+  var resOpts  = ['','480p','720p','1080p','4K'];
+  var encOpts  = ['','x264','x265','x265 10bit','AV1','HEVC'];
+  function makeOpts(list, val) {
+    return list.map(function(o){
+      return '<option value="'+esc(o)+'"'+(o===val?' selected':'')+'>'+( o||'—')+'</option>';
+    }).join('');
+  }
+  dlLinks.forEach(function(d, i) {
+    var row = document.createElement('div');
+    row.className = 'dl-list-item';
+    row.innerHTML =
+      '<select title="Resolusi" onchange="dlLinks['+i+'].res=this.value;liveUpdate()">'+makeOpts(resOpts,d.res)+'</select>' +
+      '<input value="'+esc(d.server)+'" list="dl-server-options" placeholder="server" title="Server" autocomplete="off" oninput="dlLinks['+i+'].server=this.value;liveUpdate()">' +
+      '<input value="'+esc(d.qual||'')+'" list="dl-qual-options" placeholder="kualitas" title="Kualitas" autocomplete="off" oninput="dlLinks['+i+'].qual=this.value;liveUpdate()">' +
+      '<select title="Encode" onchange="dlLinks['+i+'].encode=this.value;liveUpdate()">'+makeOpts(encOpts,d.encode)+'</select>' +
+      '<input value="'+esc(d.url)+'" placeholder="url" title="URL" oninput="dlLinks['+i+'].url=this.value;liveUpdate()">' +
+      '<button class="rm-btn" onclick="dlLinks.splice('+i+',1);renderDl();liveUpdate()" title="Hapus">✕</button>';
+    c.appendChild(row);
+  });
+}
+
+/* ── helpers ── */
+function v(id) { return (document.getElementById(id) || {}).value || ''; }
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function txt(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function html(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.innerHTML = val;
+}
+function show(id, visible) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = visible ? '' : 'none';
+}
+
+/* ══════════════════════════════════════════
+   LIVE UPDATE — mori-info-card persis seperti XML theme
+══════════════════════════════════════════ */
+function liveUpdate() {
+  var title    = v('f-title')    || 'Judul Anime';
+  var titleJp  = v('f-title-jp');
+  var ep       = v('f-ep');
+  var epT      = v('f-ep-title');
+  var type     = v('f-type')     || 'TV';
+  var totalEp  = v('f-total-ep');
+  var duration = v('f-duration');
+  var studio   = v('f-studio');
+  var year     = v('f-year');
+  var score    = v('f-score');
+  var rating   = v('f-rating');
+  var status   = v('f-status');
+  var genres   = (v('f-genre')||'').split(',').map(x=>x.trim()).filter(Boolean);
+  var cover    = v('f-cover');
+  var synopsis = v('f-synopsis');
+
+  /* ── header title ── */
+  txt('pv-hdr-title', title !== 'Judul Anime' ? title : 'Preview');
+
+  /* ── mori-info-card ── */
+  // Background image
+  var bgImg = document.getElementById('pv-bg-img');
+  var bgPh  = document.getElementById('pv-bg-placeholder');
+  if (cover) {
+    bgImg.src = cover;
+    bgImg.style.display = 'block';
+    bgImg.onerror = function(){ this.style.display='none'; bgPh.style.display='block'; };
+    bgImg.onload  = function(){ bgPh.style.display='none'; };
+  } else {
+    bgImg.style.display = 'none';
+    bgPh.style.display  = 'block';
+  }
+
+  // Breadcrumb label = status label uppercased
+  var statusLabel = {ongoing:'ONGOING',selesai:'SELESAI',movie:'MOVIE'}[status]||'ONGOING';
+  txt('pv-breadcrumb-label', statusLabel);
+
+  // JP title
+  if (titleJp) {
+    txt('pv-jp-title', titleJp);
+    show('pv-jp-title', true);
+  } else {
+    show('pv-jp-title', false);
+  }
+
+  // Title
+  txt('pv-title', title);
+
+  // Badges — persis seperti logika XML AUTO-FILL
+  // 1. Badge Status
+  var statusClsMap = {
+    ongoing: 'mori-badge mori-badge-ongoing',
+    selesai: 'mori-badge mori-badge-selesai',
+    movie:   'mori-badge mori-badge-movie'
+  };
+  var statusLblMap = { ongoing:'ONGOING', selesai:'SELESAI', movie:'MOVIE' };
+  var bh = '<span class="'+(statusClsMap[status]||statusClsMap.ongoing)+'">'+
+           (statusLblMap[status]||'ONGOING')+'</span>';
+
+  // 2. Badge Tipe (TV pakai ap-label, lainnya pakai mori-badge class khusus)
+  var typeClsMap = {
+    'Movie':'mori-badge mori-badge-movie','OVA':'mori-badge mori-badge-ova',
+    'ONA':'mori-badge mori-badge-ona','Special':'mori-badge mori-badge-special',
+    'TV':'ap-label'
+  };
+  if (type) {
+    bh += '<span class="'+(typeClsMap[type]||'ap-label')+'">'+esc(type)+'</span>';
+  }
+
+  // 3. Badge Rating (style mori-badge-sub)
+  if (rating) {
+    bh += '<span class="mori-badge-sub">'+esc(rating)+'</span>';
+  }
+
+  // 4. Sub Indo selalu ada
+  bh += '<span class="mori-badge-sub">Sub Indo</span>';
+  html('pv-badges', bh);
+
+  // Meta (kiri bawah info card)
+  var mh = '';
+  if (studio)   mh += '<div class="mori-info-meta-item"><span class="mori-info-meta-key">Studio</span><span class="mori-info-meta-val">'+esc(studio)+'</span></div>';
+  if (year)     mh += '<div class="mori-info-meta-item"><span class="mori-info-meta-key">Tahun</span><span class="mori-info-meta-val">'+esc(year)+'</span></div>';
+  if (totalEp)  mh += '<div class="mori-info-meta-item"><span class="mori-info-meta-key">Total Ep</span><span class="mori-info-meta-val">'+esc(totalEp)+'</span></div>';
+  if (duration) mh += '<div class="mori-info-meta-item"><span class="mori-info-meta-key">Durasi</span><span class="mori-info-meta-val">'+esc(duration)+' mnt</span></div>';
+  html('pv-meta', mh);
+
+  // Right col — Episode
+  if (ep) {
+    txt('pv-ep-num', String(ep).padStart(2,'0'));
+    txt('pv-ep-title-text', epT || '—');
+    show('pv-ep-block', true);
+  } else {
+    txt('pv-ep-num', '—');
+    txt('pv-ep-title-text', '—');
+  }
+
+  // Right col — MAL Score
+  txt('pv-score', score || '—');
+
+  /* ── Player cover dari thumbnail ── */
+  var playerCover = document.getElementById('pv-player-cover');
+  var playerBg    = document.getElementById('pv-player-bg');
+  var playerDim   = document.getElementById('pv-player-dim');
+  var streamThumb = document.querySelector('.stream-thumb');
+  if (cover) {
+    // Tampilkan cover via background-image agar tidak terhalang CORS/load issue
+    streamThumb.style.backgroundImage = 'url("'+cover+'")';
+    streamThumb.style.backgroundSize  = 'contain';
+    streamThumb.style.backgroundRepeat = 'no-repeat';
+    streamThumb.style.backgroundPosition = 'center top';
+    playerCover.src = cover;
+    playerCover.style.display = 'block';
+    playerBg.style.display = 'none';
+    playerDim.style.display = 'block';
+    playerCover.onerror = function(){
+      // Jika img element gagal load, background-image tetap menampilkan cover
+      this.style.display='none';
+    };
+    playerCover.onload = function(){
+      playerBg.style.display='none';
+      playerDim.style.display='block';
+    };
+  } else {
+    streamThumb.style.backgroundImage = '';
+    playerCover.style.display = 'none';
+    playerBg.style.display    = 'block';
+    playerDim.style.display   = 'none';
+  }
+
+  /* ── Genre tags ── */
+  if (genres.length) {
+    var gh = genres.map(function(g){
+      return '<span class="genre-tag">'+esc(g)+'</span>';
+    }).join('');
+    html('pv-genres', gh);
+    show('pv-genres', true);
+  } else {
+    show('pv-genres', false);
+  }
+
+  /* ── Synopsis ── */
+  if (synopsis) {
+    txt('pv-synopsis', synopsis);
+    show('pv-synopsis', true);
+  } else {
+    show('pv-synopsis', false);
+  }
+
+  /* ── Server tabs ── */
+  var sh = '';
+  servers.forEach(function(s,i){
+    var label = s.label || ('Server '+(i+1));
+    var name  = s.name  || '';
+    sh += '<button class="server-tab'+(i===0?' active':'')+'" style="cursor:default">'
+         + esc(label)
+         + (name ? '<span style="opacity:.55;margin-left:4px;font-size:10px">'+esc(name)+'</span>' : '')
+         + '</button>';
+  });
+  html('pv-stabs', sh || '<button class="server-tab active" style="cursor:default">Server 1</button>');
+
+  /* ── Download preview — res-group layout ── */
+  var dlh = '';
+  if (dlLinks.length) {
+    // group by resolution
+    var resOrder = ['1080p','720p','480p','4K',''];
+    var groups = {};
+    var groupOrder = [];
+    dlLinks.forEach(function(d){
+      var r = d.res || '—';
+      if (!groups[r]) { groups[r] = []; groupOrder.push(r); }
+      groups[r].push(d);
+    });
+    // sort group keys by preferred order
+    groupOrder.sort(function(a,b){
+      var ai = resOrder.indexOf(a); var bi = resOrder.indexOf(b);
+      if(ai<0) ai=99; if(bi<0) bi=99; return ai-bi;
+    });
+    var uniqueGroupOrder = groupOrder.filter(function(v,i){return groupOrder.indexOf(v)===i;});
+
+    dlh = '<div class="dl-rg-wrap"><div class="dl-rg-header">Direct Download</div>';
+    uniqueGroupOrder.forEach(function(res){
+      var lbl = res==='1080p'?'lbl-1080':res==='720p'?'lbl-720':res==='480p'?'lbl-480':res==='4K'?'lbl-4k':'lbl-480';
+      dlh += '<div class="dl-res-group">'
+           + '<div class="dl-res-label '+lbl+'">'+esc(res==='—'?'?':res)+'</div>'
+           + '<div class="dl-res-rows">'
+           + '<div class="dl-tbl-head"><span>Nama Server</span><span>Kualitas</span><span>Encode</span><span>Link Download</span></div>';
+      groups[res].forEach(function(d){
+        dlh += '<a class="dl-tbl-row" href="'+esc(d.url)+'" target="_blank" rel="nofollow noopener">'
+             + '<span class="dl-tbl-srv">'+esc(d.server||'Server')+'</span>'
+             + '<span><span class="dl-qual-badge">'+esc(d.qual||'—')+'</span></span>'
+             + '<span><span class="dl-enc-badge">'+esc(d.encode||'—')+'</span></span>'
+             + '<span class="dl-tbl-link"><span class="dl-tbl-btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</span></span>'
+             + '</a>';
+      });
+      dlh += '</div></div>';
+    });
+    dlh += '</div>';
+  }
+  html('pv-dl', dlh);
+}
+
+/* ── generate HTML ── */
+function generateCode() {
+  var title   = v('f-title')   || 'Judul Anime';
+  var titleJp = v('f-title-jp');
+  var ep      = v('f-ep');
+  var epT     = v('f-ep-title');
+  var type    = v('f-type')    || 'TV';
+  var totalEp = v('f-total-ep');
+  var duration= v('f-duration');
+  var studio  = v('f-studio');
+  var year    = v('f-year');
+  var score   = v('f-score');
+  var rating  = v('f-rating');
+  var status  = v('f-status');
+  var genres  = (v('f-genre')||'').split(',').map(x=>x.trim()).filter(Boolean);
+  var cover   = v('f-cover');
+  var synopsis= v('f-synopsis');
+
+  // dx-feed-meta: data machine-readable untuk theme parseInfoTable()
+  // Dibutuhkan agar mori-card di homepage bisa baca data: studio, tahun, tipe, score, episode, status
+  var feedMeta = '<div id="dx-feed-meta" style="display:none;"'
+    + ' data-tipe="'   + esc(type)       + '"'
+    + ' data-tahun="'  + esc(year)       + '"'
+    + ' data-studio="' + esc(studio)     + '"'
+    + ' data-episode="' + esc(totalEp)   + '"'
+    + ' data-durasi="'  + esc(duration)  + '"'
+    + ' data-score="'  + esc(score)      + '"'
+    + ' data-status="' + esc(status)     + '"'
+    + ' data-rating="' + esc(rating)     + '"'
+    + ' data-musim="" data-sumber="" data-prog=""'
+    + '></div>\n\n';
+
+  // hidden thumbnail untuk Blogger firstImageUrl
+  var thumbHtml = cover
+    ? '<img src="'+esc(cover)+'" alt="'+esc(title)+'" data-mic-cover="1" style="display:none;width:1px;height:1px;position:absolute;"/>\n\n'
+    : '';
+
+  // mori-info-card: data carrier untuk JS di Blogger template
+  var micHtml = '<div class="mori-info-card"'
+    + (ep       ? ' data-ep="'       +esc(ep)      +'"' : '')
+    + (epT      ? ' data-ep-title="' +esc(epT)     +'"' : '')
+    + (score    ? ' data-score="'    +esc(score)   +'"' : '')
+    + (type     ? ' data-type="'     +esc(type)    +'"' : '')
+    + (status   ? ' data-status="'   +esc(status)  +'"' : '')
+    + (rating   ? ' data-rating="'   +esc(rating)  +'"' : '')
+    + (duration ? ' data-duration="' +esc(duration)+'"' : '')
+    + (titleJp  ? ' data-jp="'       +esc(titleJp) +'"' : '')
+    + '></div>\n\n';
+
+  // synopsis
+  var synHtml = synopsis
+    ? '<div class="ap-body"><p>' + esc(synopsis) + '</p></div>\n\n'
+    : '';
+
+  // stream
+  var streamHtml = '<div class="stream-wrap">\n'
+    + '  <iframe src="" frameborder="0" allowfullscreen allow="autoplay"'
+    + ' style="width:100%;aspect-ratio:16/9;border:none;display:block;"></iframe>\n';
+  if (servers.length) {
+    streamHtml += '  <div class="server-tabs">\n';
+    servers.forEach(function(s,i){
+      var label = s.label || ('Server '+(i+1));
+      var name  = s.name  || '';
+      streamHtml += '    <button class="server-tab'+(i===0?' active':'')+'"'
+        + ' data-url="'+esc(s.url||'')+'"'
+        + ' onclick="dxSwitchServer(this)">'+esc(label)
+        + (name ? '<span style="opacity:.55;margin-left:4px;font-size:10px">'+esc(name)+'</span>' : '')
+        + '</button>\n';
+    });
+    streamHtml += '  </div>\n';
+  }
+  streamHtml += '</div>\n\n';
+
+  // download — res-group layout
+  var dlHtml = '';
+  if (dlLinks.length) {
+    // group by resolution
+    var resOrder = ['1080p','720p','480p','4K',''];
+    var dlGroups = {};
+    var dlGroupOrder = [];
+    dlLinks.forEach(function(d){
+      var r = d.res || '—';
+      if (!dlGroups[r]) { dlGroups[r] = []; dlGroupOrder.push(r); }
+      dlGroups[r].push(d);
+    });
+    dlGroupOrder.sort(function(a,b){
+      var ai=resOrder.indexOf(a); var bi=resOrder.indexOf(b);
+      if(ai<0)ai=99; if(bi<0)bi=99; return ai-bi;
+    });
+    var uniqueDlOrder = dlGroupOrder.filter(function(v,i){return dlGroupOrder.indexOf(v)===i;});
+
+    dlHtml = '<div class="dl-rg-wrap">\n'
+           + '  <div class="dl-rg-header">Direct Download</div>\n';
+    uniqueDlOrder.forEach(function(res){
+      var lbl = res==='1080p'?'lbl-1080':res==='720p'?'lbl-720':res==='480p'?'lbl-480':res==='4K'?'lbl-4k':'lbl-480';
+      dlHtml += '  <div class="dl-res-group">\n'
+              + '    <div class="dl-res-label '+lbl+'">'+esc(res==='—'?'?':res)+'</div>\n'
+              + '    <div class="dl-res-rows">\n'
+              + '      <div class="dl-tbl-head"><span>Nama Server</span><span>Kualitas</span><span>Encode</span><span>Link Download</span></div>\n';
+      dlGroups[res].forEach(function(d){
+        dlHtml += '      <a class="dl-tbl-row" href="'+esc(d.url)+'" target="_blank" rel="nofollow noopener">\n'
+               + '        <span class="dl-tbl-srv">'+esc(d.server||'Server')+'</span>\n'
+               + '        <span><span class="dl-qual-badge">'+esc(d.qual||'—')+'</span></span>\n'
+               + '        <span><span class="dl-enc-badge">'+esc(d.encode||'—')+'</span></span>\n'
+               + '        <span class="dl-tbl-link"><span class="dl-tbl-btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</span></span>\n'
+               + '      </a>\n';
+      });
+      dlHtml += '    </div>\n  </div>\n';
+    });
+    dlHtml += '</div>\n';
+  }
+
+  var outputHtml =
+    '<!-- ═══ '+esc(title)+(ep?' Ep '+ep:'')+' · Mori Generator ═══ -->\n\n'
+    + feedMeta
+    + thumbHtml
+    + micHtml
+    + synHtml
+    + streamHtml
+    + dlHtml;
+
+  document.getElementById('code-out').value = outputHtml;
+  switchTab('code', document.querySelectorAll('.ptab')[1]);
+  showToast('✓ HTML berhasil di-generate!');
+}
+
+/* ── auto-sync dari HTML Output → form ── */
+function syncFromOutput(html) {
+  if (!html || (!html.includes('mori-info-card') && !html.includes('stream-wrap') && !html.includes('dlu-wrap') && !html.includes('dx-feed-meta'))) return;
+  try {
+    var m;
+    m = html.match(/class="mori-info-title">([^<]+)<\/div>/);
+    if (m) setVal('f-title', dec(m[1]));
+
+    m = html.match(/data-mic-cover="1"[^>]+src="([^"]+)"/);
+    if (!m) m = html.match(/src="([^"]+)"[^>]+data-mic-cover="1"/);
+    if (m) setVal('f-cover', dec(m[1]));
+
+    m = html.match(/mori-info-ep[^>]*>Episode\s+(\d+)(?:\s+[—\-]+\s+([^<]+))?</);
+    if (m) { setVal('f-ep', m[1]); if (m[2]) setVal('f-ep-title', dec(m[2].trim())); }
+
+    if (html.includes('mori-badge-ongoing')) setVal('f-status','ongoing');
+    else if (html.includes('mori-badge-selesai')) setVal('f-status','selesai');
+    else if (html.includes('mori-badge-movie'))   setVal('f-status','movie');
+
+    // Sync dari data-* attributes di mori-info-card
+    var micM = html.match(/class="mori-info-card"([^>]*?)>/);
+    if (micM) {
+      var attrs = micM[1];
+      var attrGet = function(name) {
+        var rx = new RegExp('\\bdata-'+name+'="([^"]*)"');
+        var am = attrs.match(rx); return am ? dec(am[1]) : null;
+      };
+      var a_ep    = attrGet('ep');       if(a_ep)       setVal('f-ep', a_ep);
+      var a_epT   = attrGet('ep-title'); if(a_epT)      setVal('f-ep-title', a_epT);
+      var a_score = attrGet('score');    if(a_score)    setVal('f-score', a_score);
+      var a_type  = attrGet('type');     if(a_type)     setVal('f-type', a_type);
+      var a_stat  = attrGet('status');   if(a_stat)     setVal('f-status', a_stat);
+      var a_rat   = attrGet('rating');   if(a_rat)      setVal('f-rating', a_rat);
+      var a_dur   = attrGet('duration'); if(a_dur)      setVal('f-duration', a_dur);
+      var a_jp    = attrGet('jp');       if(a_jp)       setVal('f-title-jp', a_jp);
+    }
+
+    function getMeta(key) {
+      var rx = new RegExp('mori-info-meta-key">'+key+'<\\/span>\\s*<span[^>]*>([^<]+)<\\/span>');
+      var mm = html.match(rx); return mm ? dec(mm[1]) : null;
+    }
+    var t_studio  = getMeta('Studio');   if(t_studio)  setVal('f-studio', t_studio);
+    var t_year    = getMeta('Tahun');    if(t_year)    setVal('f-year', t_year);
+    var t_score   = getMeta('Score');    if(t_score)   setVal('f-score', t_score.replace('★','').trim());
+    var t_totalEp = getMeta('Total Ep'); if(t_totalEp) setVal('f-total-ep', t_totalEp);
+    var t_dur     = getMeta('Durasi');   if(t_dur)     setVal('f-duration', parseInt(t_dur)||t_dur);
+
+    // Sync dari dx-feed-meta (format baru v12+)
+    var fmM = html.match(/id="dx-feed-meta"([^>]*?)>/);
+    if (fmM) {
+      var fmAttrs = fmM[1];
+      var fmGet = function(n) {
+        var rx = new RegExp('\\bdata-'+n+'="([^"]*)"');
+        var am = fmAttrs.match(rx); return am ? dec(am[1]) : null;
+      };
+      var fm_tipe    = fmGet('tipe');    if(fm_tipe)    setVal('f-type', fm_tipe);
+      var fm_tahun   = fmGet('tahun');   if(fm_tahun)   setVal('f-year', fm_tahun);
+      var fm_studio  = fmGet('studio');  if(fm_studio)  setVal('f-studio', fm_studio);
+      var fm_episode = fmGet('episode'); if(fm_episode) setVal('f-total-ep', fm_episode);
+      var fm_durasi  = fmGet('durasi');  if(fm_durasi)  setVal('f-duration', fm_durasi);
+      var fm_score   = fmGet('score');   if(fm_score)   setVal('f-score', fm_score);
+      var fm_status  = fmGet('status');  if(fm_status)  setVal('f-status', fm_status);
+      var fm_rating  = fmGet('rating');  if(fm_rating)  setVal('f-rating', fm_rating);
+    }
+
+    var gm=[...html.matchAll(/class="ap-label"[^>]*>([^<]+)<\/a>/g)];
+    if(gm.length) setVal('f-genre',gm.map(m=>dec(m[1])).join(', '));
+
+    var sm=html.match(/class="ap-body"><p>([\s\S]*?)<\/p><\/div>/);
+    if(sm) setVal('f-synopsis',dec(sm[1]));
+
+    var malM=html.match(/myanimelist\.net\/anime\/(\d+)/);
+    if(malM) _malId=malM[1];
+
+/* ── Perbaikan pada bagian sinkronisasi Server ── */
+    var svrM = [...html.matchAll(/<button[^>]*class="server-tab[^"]*"[^>]*data-url="([^"]*)"[^>]*>([\s\S]*?)<\/button>/g)];
+    if (!svrM.length) {
+      // fallback: try alternate attribute order (data-url before class)
+      var svrM2 = [...html.matchAll(/<button[^>]*data-url="([^"]*)"[^>]*class="server-tab[^"]*"[^>]*>([\s\S]*?)<\/button>/g)];
+      if (svrM2.length) svrM = svrM2;
+    }
+    if (svrM.length) {
+      servers = svrM.map(function(m) {
+        var inner = dec(m[2]);
+        // 1. Hapus simbol-simbol aneh/entitas yang sering muncul (►, ▶, dll)
+        inner = inner.replace(/[►▶►]/g, '').trim();
+        
+        // 2. Cek apakah ada struktur span (format baru)
+        var spanM = inner.match(/^([^<]+)<span[^>]*>([^<]*)<\/span>/);
+        if (spanM) {
+          return {
+            label: spanM[1].trim(),
+            name: spanM[2].trim(),
+            url: dec(m[1])
+          };
+        }
+        
+        // 3. Jika tidak ada span, ambil teks bersihnya sebagai Nama Server
+        return {
+          label: '',
+          name: inner.trim(),
+          url: dec(m[1])
+        };
+      });
+      renderServers();
+    }
+
+    var dlM=[...html.matchAll(/class="dlu-item" href="([^"]*)"[\s\S]*?class="dlu-srv">([^<]+)<\/span>[\s\S]*?class="dlu-res[^"]*">([^<]+)<\/span>[\s\S]*?class="dlu-meta">([^<]*)<\/span>/g)];
+    if(dlM.length){
+      dlLinks=dlM.map(m=>({url:dec(m[1]),server:dec(m[2].trim()),res:dec(m[3].trim()),qual:'',encode:dec(m[4].trim()).replace(/\s+/g,' ').trim()}));
+      renderDl();
+    } else {
+      // format baru: dl-tbl-row (res-group layout)
+      var dlM2=[...html.matchAll(/class="dl-tbl-row"[^>]*href="([^"]*)"[\s\S]*?class="dl-tbl-srv">([^<]+)<\/span>[\s\S]*?class="dl-qual-badge">([^<]*)<\/span>[\s\S]*?class="dl-enc-badge">([^<]*)<\/span>/g)];
+      if(dlM2.length){
+        // also try to get res from parent dl-res-group
+        var resBlocks=[...html.matchAll(/<div class="dl-res-group">\s*<div class="dl-res-label[^"]*">([^<]+)<\/div>([\s\S]*?)<\/div>\s*<\/div>/g)];
+        var urlResMap={};
+        resBlocks.forEach(function(rb){
+          var res=rb[1].trim();
+          var inner=rb[2];
+          var rows=[...inner.matchAll(/href="([^"]*)"/g)];
+          rows.forEach(function(r){urlResMap[r[1]]=res;});
+        });
+        dlLinks=dlM2.map(function(m){
+          var url=dec(m[1]);
+          return {url:url,server:dec(m[2].trim()),qual:dec(m[3].trim()),encode:dec(m[4].trim()).replace(/\s+/g,' ').trim(),res:urlResMap[url]||''};
+        });
+        renderDl();
+      }
+    }
+
+    liveUpdate();
+    showToast('✓ Sync dari HTML Output berhasil!');
+  } catch(e){}
+}
+
+function setVal(id,val){var el=document.getElementById(id);if(el&&val!=null)el.value=val;}
+function dec(s){
+  if(!s) return '';
+  // decode named entities first
+  var r = s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+  // decode numeric entities &#NNN; and &#xHHH;
+  r = r.replace(/&#([0-9]+);/g, function(_,n){ return String.fromCharCode(parseInt(n,10)); });
+  r = r.replace(/&#x([0-9a-fA-F]+);/g, function(_,h){ return String.fromCharCode(parseInt(h,16)); });
+  return r;
+}
+
+/* ── copy ── */
+function copyCode(){
+  var txt=document.getElementById('code-out').value;
+  if(!txt) return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>{
+      document.getElementById('copy-banner').style.display='block';
+      showToast('✓ Tersalin ke clipboard!');
+      setTimeout(()=>document.getElementById('copy-banner').style.display='none',2500);
+    });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=txt;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    showToast('✓ Tersalin!');
+  }
+}
+
+/* ── toast ── */
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2200);
+}
+
+/* ── reset ── */
+function resetForm(){
+  ['f-title','f-title-jp','f-ep','f-ep-title','f-studio','f-year','f-score','f-cover','f-synopsis','f-total-ep','f-duration','f-rating'].forEach(id=>{
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('f-status').value='ongoing';
+  document.getElementById('f-type').value='TV';
+  document.getElementById('f-genre').value='';
+  document.getElementById('dl-new-res').selectedIndex = 0;
+  document.getElementById('dl-new-encode').selectedIndex = 0;
+  document.getElementById('dl-new-server').value = '';
+  document.getElementById('dl-new-qual').value = '';
+  document.getElementById('dl-new-url').value = '';
+  document.getElementById('code-out').value='';
+  _malId='';servers=[];dlLinks=[];
+  renderServers();renderDl();liveUpdate();
+  showToast('Form direset.');
+}
+
+/* ── jikan fetch by MAL ID ── */
+async function fetchJikanWithRetry(url, maxRetries){
+  var lastErr = null;
+  for (var attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      var r = await fetch(url);
+      // 504/502/503 = server sedang sibuk/timeout — layak dicoba ulang
+      if (r.status === 504 || r.status === 502 || r.status === 503) {
+        lastErr = { status: r.status };
+        if (attempt < maxRetries) {
+          await new Promise(res => setTimeout(res, 800 * (attempt + 1))); // backoff bertahap
+          continue;
+        }
+        return { ok: false, status: r.status };
+      }
+      return r; // sukses ATAU error selain 502/503/504 (mis. 404/429) — langsung dikembalikan, tidak perlu retry
+    } catch (e) {
+      lastErr = e;
+      if (attempt < maxRetries) {
+        await new Promise(res => setTimeout(res, 800 * (attempt + 1)));
+        continue;
+      }
+      throw e;
+    }
+  }
+  return { ok: false, status: (lastErr && lastErr.status) || 0 };
+}
+
+async function jikanSearch(){
+  var id=document.getElementById('mal-q').value.trim();
+  if(!id||isNaN(id)){showToast('Masukkan MAL ID yang valid (angka).');return;}
+  var spin=document.getElementById('jspin');
+  spin.style.display='inline-block';
+  try{
+    showToast('Menghubungi Jikan API…');
+    var r = await fetchJikanWithRetry('https://api.jikan.moe/v4/anime/'+encodeURIComponent(id)+'/full', 2);
+
+    // Kalau /full tetap 504 setelah retry, fallback ke endpoint ringan (tanpa relations dkk)
+    if(!r.ok && (r.status===504||r.status===502||r.status===503)){
+      showToast('Endpoint /full timeout — mencoba endpoint ringan…');
+      r = await fetchJikanWithRetry('https://api.jikan.moe/v4/anime/'+encodeURIComponent(id), 2);
+    }
+
+    /* ── Fix #5: HTTP error handling ── */
+    if(!r.ok){
+      if(r.status===404) showToast('ID '+id+' tidak ditemukan di MAL.');
+      else if(r.status===429) showToast('Rate limit Jikan API — tunggu beberapa detik lalu coba lagi.');
+      else if(r.status===504||r.status===502||r.status===503) showToast('Jikan API sedang timeout/down (Error '+r.status+'). Coba lagi beberapa saat lagi.');
+      else showToast('Error '+r.status+': Gagal fetch dari Jikan API.');
+      spin.style.display='none';
+      return;
+    }
+
+    var d=await r.json();
+    var a=d.data;
+    if(a){
+      _malId=id;
+      document.getElementById('f-title').value    =a.title||'';
+      document.getElementById('f-title-jp').value =a.title_japanese||'';
+      document.getElementById('f-studio').value   =(a.studios&&a.studios[0])?a.studios[0].name:'';
+
+      /* ── Fix #3: fallback tahun dari aired.from jika a.year null ── */
+      var tahun = a.year || (a.aired?.prop?.from?.year) || '';
+      if(!tahun && a.aired?.from){
+        var parsedYear = new Date(a.aired.from).getFullYear();
+        if(!isNaN(parsedYear)) tahun = parsedYear;
+      }
+      document.getElementById('f-year').value = tahun;
+
+      document.getElementById('f-score').value    =a.score||'';
+      document.getElementById('f-genre').value    =(a.genres||[]).map(g=>g.name).join(', ');
+      document.getElementById('f-cover').value    =a.images?.jpg?.large_image_url||a.images?.jpg?.image_url||'';
+
+      /* ── Fix #2: synopsis tidak dipotong ── */
+      document.getElementById('f-synopsis').value =a.synopsis||'';
+
+      document.getElementById('f-total-ep').value =a.episodes||'';
+
+      /* ── Fix #4: durasi parsing yang benar untuk format "1 hr 45 min" / "24 min per ep" ── */
+      var durMnt = 0;
+      if(a.duration){
+        var durStr = a.duration;
+        var hrM  = durStr.match(/(\d+)\s*hr/);
+        var minM = durStr.match(/(\d+)\s*min/);
+        if(hrM)  durMnt += parseInt(hrM[1])  * 60;
+        if(minM) durMnt += parseInt(minM[1]);
+        if(!hrM && !minM) durMnt = parseInt(durStr) || 0;
+      }
+      document.getElementById('f-duration').value = durMnt || '';
+
+      document.getElementById('f-rating').value   =a.rating?a.rating.replace(/ - .*/,''):'';
+      var typeMap={'TV':'TV','Movie':'Movie','OVA':'OVA','ONA':'ONA','Special':'Special','Music':'Special'};
+      document.getElementById('f-type').value=typeMap[a.type]||'TV';
+      var sm={'Currently Airing':'ongoing','Finished Airing':'selesai','Movie':'movie'};
+      document.getElementById('f-status').value=sm[a.status]||'ongoing';
+      applyDefaultServersAndDl();
+      liveUpdate();
+      showToast('✓ MAL ID '+id+' — '+(a.title||'')+' berhasil diisi!');
+    } else {
+      showToast('ID '+id+' tidak ditemukan di MAL.');
+    }
+  } catch(e){
+    showToast('Gagal terhubung ke Jikan API: '+e.message);
+  }
+  spin.style.display='none';
+}
+
+/* ── AniList fetch by AniList ID ── */
+async function anilistSearch(){
+  var id=document.getElementById('al-q').value.trim();
+  if(!id||isNaN(id)){showToast('Masukkan AniList ID yang valid (angka).');return;}
+  var spin=document.getElementById('alspin');
+  spin.style.display='inline-block';
+  var alId=parseInt(id,10);
+  var query='query($id:Int){Media(id:$id,type:ANIME){id format title{romaji english native}description(asHtml:false)episodes duration season seasonYear status averageScore genres studios{nodes{name isAnimationStudio}}coverImage{extraLarge large}}}';
+  try{
+    var r=await fetch('https://graphql.anilist.co',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({query:query,variables:{id:alId}})
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var json=await r.json();
+    if(json.errors) throw new Error(json.errors[0].message);
+    var m=json.data&&json.data.Media;
+    if(!m){showToast('ID '+id+' tidak ditemukan di AniList.');spin.style.display='none';return;}
+
+    var mainStudio=(m.studios&&m.studios.nodes||[]).find(s=>s.isAnimationStudio);
+    if(!mainStudio&&m.studios&&m.studios.nodes&&m.studios.nodes.length) mainStudio=m.studios.nodes[0];
+
+    var statusMap={FINISHED:'selesai',RELEASING:'ongoing',NOT_YET_RELEASED:'ongoing',CANCELLED:'selesai'};
+    var typeMap={MOVIE:'Movie',OVA:'OVA',ONA:'ONA',SPECIAL:'Special',MUSIC:'Special'};
+
+    document.getElementById('f-title').value   =m.title.english||m.title.romaji||'';
+    document.getElementById('f-title-jp').value=m.title.native||'';
+    document.getElementById('f-studio').value  =mainStudio?mainStudio.name:'';
+    document.getElementById('f-year').value    =m.seasonYear||'';
+    document.getElementById('f-score').value   =m.averageScore?(m.averageScore/10).toFixed(1):'';
+    document.getElementById('f-genre').value   =(m.genres||[]).join(', ');
+    document.getElementById('f-cover').value   =m.coverImage.extraLarge||m.coverImage.large||'';
+    document.getElementById('f-synopsis').value=(m.description||'').replace(/<[^>]+>/g,'').replace(/\n{3,}/g,'\n\n').trim();
+    document.getElementById('f-total-ep').value=m.episodes||'';
+    document.getElementById('f-duration').value=m.duration||'';
+    document.getElementById('f-status').value  =statusMap[m.status]||'ongoing';
+    // type mapping — AniList pakai format berbeda
+    var alType=m.format||(m.episodes===1?'Movie':'TV');
+    document.getElementById('f-type').value=typeMap[alType]||'TV';
+
+    applyDefaultServersAndDl();
+    liveUpdate();
+    showToast('✓ AniList ID '+id+' — '+(m.title.english||m.title.romaji||'')+' berhasil diisi!');
+  }catch(e){
+    showToast('Gagal terhubung ke AniList API: '+e.message);
+  }
+  spin.style.display='none';
+}
+
+/* ── init ── */
+liveUpdate();
+addServer();
+</script>
+</body>
+</html>
