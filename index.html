@@ -647,11 +647,11 @@ a{text-decoration:none;color:inherit}
       <div class="f-row c2">
         <div class="f-group">
           <label>Judul Anime (EN)</label>
-          <input id="f-title" oninput="liveUpdate()" placeholder="Solo Leveling Season 2">
+          <input id="f-title" oninput="liveUpdate()" placeholder="Judul Anime Disini">
         </div>
         <div class="f-group">
           <label>Judul Jepang</label>
-          <input id="f-title-jp" oninput="liveUpdate()" placeholder="俺だけレベルアップな件 Season 2">
+          <input id="f-title-jp" oninput="liveUpdate()" placeholder="Judul Jepang Disini">
         </div>
       </div>
       <div class="f-row c2">
@@ -661,7 +661,7 @@ a{text-decoration:none;color:inherit}
         </div>
         <div class="f-group">
           <label>Judul Episode</label>
-          <input id="f-ep-title" oninput="liveUpdate()" placeholder="The Demon Castle">
+          <input id="f-ep-title" oninput="liveUpdate()" placeholder="Judul Episode disini">
         </div>
       </div>
       <div class="f-row c4">
@@ -677,21 +677,21 @@ a{text-decoration:none;color:inherit}
         </div>
         <div class="f-group">
           <label>Total Ep</label>
-          <input id="f-total-ep" type="number" oninput="liveUpdate()" placeholder="12">
+          <input id="f-total-ep" type="number" oninput="liveUpdate()" placeholder="Total Episode">
         </div>
         <div class="f-group">
           <label>Durasi (mnt)</label>
-          <input id="f-duration" type="number" oninput="liveUpdate()" placeholder="24">
+          <input id="f-duration" type="number" oninput="liveUpdate()" placeholder="Durasi Episode">
         </div>
         <div class="f-group">
           <label>Tahun</label>
-          <input id="f-year" type="number" oninput="liveUpdate()" placeholder="2025">
+          <input id="f-year" type="number" oninput="liveUpdate()" placeholder="Tahun Rilis">
         </div>
       </div>
       <div class="f-row c3">
         <div class="f-group">
           <label>Studio</label>
-          <input id="f-studio" oninput="liveUpdate()" placeholder="A-1 Pictures">
+          <input id="f-studio" oninput="liveUpdate()" placeholder="Studio Anime">
         </div>
         <div class="f-group">
           <label>Status</label>
@@ -703,23 +703,23 @@ a{text-decoration:none;color:inherit}
         </div>
         <div class="f-group">
           <label>Rating (PG/R/dll)</label>
-          <input id="f-rating" oninput="liveUpdate()" placeholder="PG-13">
+          <input id="f-rating" oninput="liveUpdate()" placeholder="Rating Anime di MAL/Anilist">
         </div>
       </div>
       <div class="f-row c2">
         <div class="f-group">
           <label>Genre (pisah koma)</label>
-          <input id="f-genre" oninput="liveUpdate()" placeholder="Action, Fantasy, Adventure">
+          <input id="f-genre" oninput="liveUpdate()" placeholder="Genre Anime Disini">
         </div>
         <div class="f-group">
           <label>MAL Score</label>
-          <input id="f-score" type="number" step="0.1" oninput="liveUpdate()" placeholder="8.7">
+          <input id="f-score" type="number" step="0.1" oninput="liveUpdate()" placeholder="Skor Anime di MAL/Anilist">
         </div>
       </div>
       <div class="f-group">
         <label>Cover URL (opsional — diisi otomatis via Fetch)</label>
         <input id="f-cover" oninput="liveUpdate()"
-          placeholder="https://cdn.myanimelist.net/images/anime/…">
+          placeholder="URL Cover Paste disini">
       </div>
     </div>
 
@@ -752,7 +752,7 @@ a{text-decoration:none;color:inherit}
             <datalist id="dl-server-options">
               <option value="Acefile">
               <option value="Safefileku">
-              <option value="GoFile">
+              <option value="FilePress">
               <option value="Pixeldrain">
             </datalist>
           </div>
@@ -934,7 +934,7 @@ function switchTab(t, el) {
 /* ── default server & download link template (dipakai saat ID MAL/AniList berhasil di-fetch) ── */
 function applyDefaultServersAndDl() {
   servers = [
-    { label: '720p', name: 'MixDrop', url: '' },
+    { label: '720p', name: 'FileDon', url: '' },
     { label: '720p', name: 'Acefile', url: '' },
     { label: '720p', name: 'Abyss',   url: '' }
   ];
