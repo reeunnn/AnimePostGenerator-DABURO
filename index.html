@@ -920,7 +920,7 @@ a{text-decoration:none;color:inherit}
 var servers = [];
 var dlLinks = [];
 var _malId  = '';
-var SERVER_PRESETS = ['Acefile','Safefileku','GoFile'];
+var SERVER_PRESETS = ['Acefile','FilePress','GoFile'];
 var QUAL_PRESETS   = ['BDRip','DVDRip','WEB-DL','HDTV'];
 
 /* ── tab switch ── */
@@ -940,10 +940,10 @@ function applyDefaultServersAndDl() {
   ];
   dlLinks = [
     { res: '1080p', server: 'Acefile',    qual: 'BDRip', encode: 'x265', url: '#' },
-    { res: '1080p', server: 'Safefileku', qual: 'BDRip', encode: 'x265', url: '#' },
+    { res: '1080p', server: 'FilePress', qual: 'BDRip', encode: 'x265', url: '#' },
     { res: '1080p', server: 'PixelDrain', qual: 'BDRip', encode: 'x265', url: '#' },
     { res: '720p',  server: 'Acefile',    qual: 'BDRip', encode: 'x265', url: '#' },
-    { res: '720p',  server: 'Safefileku', qual: 'BDRip', encode: 'x265', url: '#' },
+    { res: '720p',  server: 'FilePress', qual: 'BDRip', encode: 'x265', url: '#' },
     { res: '720p',  server: 'PixelDrain', qual: 'BDRip', encode: 'x265', url: '#' }
   ];
   renderServers();
